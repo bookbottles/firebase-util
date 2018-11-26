@@ -133,7 +133,7 @@ Paginate.prototype.onPageCount = function(callback, context) {
 Paginate.prototype.getCountByDowloadingAllKeys = function(callback, context) {
   var self = this;
   self.downloadingEverything = true;
-  var url = self.ref.ref().toString();
+  var url = self.ref.ref.toString();
   if( !url.match(/\/$/) ) { url += '/'; }
   url += '.json?shallow=true';
   microAjax(url, function(data) {
@@ -174,7 +174,7 @@ Paginate.prototype._countPages = function() {
     if( self.pageCount === -1 ) {
       var max = self.max;
       var pageSize = self.pageSize;
-      var ref = this.ref.ref().limitToFirst(max);
+      var ref = this.ref.ref.limitToFirst(max);
       ref.once('value', function(snap) {
         if( self.pageCount === -1 ) { // double-null check pattern (may have changed during async op)
           self.couldHaveMore = snap.numChildren() === max;

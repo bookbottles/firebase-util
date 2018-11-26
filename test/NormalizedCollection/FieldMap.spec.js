@@ -220,7 +220,7 @@ describe('FieldMap', function() {
       map.add({key: 'p1.$key', alias: 'foo'});
       map.add({key: 'p1.field1', alias: 'bar.baz'});
       var snapshot = hp.stubSnap(hp.mockRef('path1'), {field1: 0}, function(snap) {
-        if (snap.key() === 'field1') {
+        if (snap.key === 'field1') {
           return 100;
         }
         else {

@@ -13,7 +13,7 @@ var util = require('../../common');
  */
 function RecordSetEventManager(parentRec) {
   var pm = parentRec.getPathManager();
-  this.masterRef = pm.first().ref();
+  this.masterRef = pm.first().ref;
   this.url = this.masterRef.toString();
   this.recList = new RecordList(parentRec, this.url);
   this.running = false;
@@ -46,15 +46,15 @@ RecordSetEventManager.prototype = {
   },
 
   _add: function(snap, prevChild) {
-    this.recList.add(snap.key(), prevChild);
+    this.recList.add(snap.key, prevChild);
   },
 
   _remove: function(snap) {
-    this.recList.remove(snap.key());
+    this.recList.remove(snap.key);
   },
 
   _move: function(snap, prevChild) {
-    this.recList.move(snap.key(), prevChild);
+    this.recList.move(snap.key, prevChild);
   }
 };
 
@@ -158,7 +158,7 @@ RecordList.prototype = {
   },
 
   _processAdd: function(snap, rec) {
-    var key = snap.key();
+    var key = snap.key;
     if( this.obs.filters.test(snap.val(), key, snap.getPriority()) ) {
       this.recs[key] = rec;
       this._putAfter(key, rec.prev);
@@ -178,7 +178,7 @@ RecordList.prototype = {
     // the Set level, they mean the record is in the process of being deleted so we
     // ignore the value event here
     if( snap.val() !== null ) {
-      var key = snap.key();
+      var key = snap.key;
       if( this.obs.filters.test(snap.val(), key, snap.getPriority()) ) {
         // a changed record that has not been filtered
         this._notify('child_changed', key);

@@ -1,4 +1,4 @@
-var Firebase = require('firebase');
+var firebase = require('firebase');
 
 /**
  * Adds matchers to Jasmine so they can be called from test units
@@ -188,7 +188,7 @@ beforeEach(function() {
   }
 
   function isFirebaseRef(obj) {
-    return _.isObject(x) && x.__proto__ && x.__proto__.constructor === exports.Firebase.prototype.constructor
+    return _.isObject(x) && x.__proto__ && x.__proto__.constructor === exports.firebase.prototype.constructor
   }
 
   // inspired by: https://gist.github.com/prantlf/8631877

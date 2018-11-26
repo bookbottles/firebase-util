@@ -6,6 +6,8 @@ function ReadOnlyRef(ref) {
   this._obs = new util.Observable(
     ['value', 'child_added', 'child_removed', 'child_moved', 'child_changed']
   );
+
+  this.ref = this._ref;
 }
 
 
@@ -31,9 +33,6 @@ ReadOnlyRef.prototype = {
   /****************************
    * WRAPPER FUNCTIONS
    ****************************/
-  'ref': function() {
-    return this._ref;
-  },
   'child': wrapMaster('child'),
   'parent': wrapMaster('parent'),
   'root': wrapMaster('root'),
@@ -94,7 +93,7 @@ ReadOnlyRef.prototype = {
 function wrapMaster(method) {
   return function() {
     var args = util.toArray(arguments);
-    var ref = this.ref();
+    var ref = this.ref;
     return ref[method].apply(ref, args);
   };
 }
@@ -102,7 +101,7 @@ function wrapMaster(method) {
 function isReadOnly(method) {
   return function() {
     throw new Error(method + ' is not supported. This is a read-only reference. You can ' +
-    'modify child records after calling .child(), or work with the original by using .ref().');
+    'modify child records after calling .child(), or work with the original by using .ref');
   };
 }
 

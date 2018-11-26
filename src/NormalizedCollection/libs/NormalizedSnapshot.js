@@ -10,6 +10,9 @@ function NormalizedSnapshot(ref, snaps) {
   }
   this._pri = this._rec.getPriority(snaps);
   this._snaps = snaps;
+
+  this.key = this._rec.getName();
+  this.ref = this._ref.ref;
 }
 
 NormalizedSnapshot.prototype = {
@@ -79,12 +82,8 @@ NormalizedSnapshot.prototype = {
 
   /** @deprecated */
   name: function() {
-    console.warn('name() has been deprecated. Use key() instead.');
-    return this.key();
-  },
-
-  key: function() {
-    return this._rec.getName();
+    console.warn('name() has been deprecated. Use key instead.');
+    return this.key;
   },
 
   numChildren: function() {
@@ -95,8 +94,6 @@ NormalizedSnapshot.prototype = {
     });
     return ct;
   },
-
-  ref: function() { return this._ref.ref(); },
 
   getPriority: function() { return this._pri; },
 

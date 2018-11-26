@@ -18,7 +18,7 @@ SnapshotFactory.prototype.create = function(ref) {
     snapshot = new NormalizedSnapshot(ref, this.snaps);
   }
   else {
-    snapshot = new NormalizedSnapshot(ref.ref().child(this.key), this.snaps);
+    snapshot = new NormalizedSnapshot(ref.ref.child(this.key), this.snaps);
   }
   return snapshot;
 };

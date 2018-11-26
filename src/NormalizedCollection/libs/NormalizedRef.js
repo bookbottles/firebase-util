@@ -8,6 +8,15 @@ function NormalizedRef(record, parent) {
   this._parent = parent||null;
   this._key = record.getName();
   this._toString = record.getUrl();
+
+  this.parent = this._parent;
+  this.key = this._key;
+
+  var p = this;
+  while(p.parent !== null) {
+    p = p.parent;
+  }
+  this.root = p;
 }
 
 util.inherits(NormalizedRef, Query, {
@@ -23,26 +32,10 @@ util.inherits(NormalizedRef, Query, {
     return ref;
   },
 
-  'parent': function() {
-    return this._parent;
-  },
-
-  'root': function() {
-    var p = this;
-    while(p.parent() !== null) {
-      p = p.parent();
-    }
-    return p;
-  },
-
   /** @deprecated */
   'name': function() {
-    console.warn('The name() function has been deprecated. Use key() instead.');
-    return this.key();
-  },
-
-  'key': function() {
-    return this._key;
+    console.warn('The name() function has been deprecated. Use key instead.');
+    return this.key;
   },
 
   'toString': function() {
@@ -66,7 +59,7 @@ util.inherits(NormalizedRef, Query, {
   },
 
   'push': function(data, callback, context) { // jshint unused:false
-    var uid = this.$getMaster().push().key();
+    var uid = this.$getMaster().push().key;
     var child = this.child(uid);
     if( arguments.length ) {
       child.set.apply(child, arguments);
@@ -118,7 +111,7 @@ function wrapAll(method) {
   return function() {
     var args = util.toArray(arguments);
     util.each(this.$getPaths(), function(p) {
-      var ref = p.ref();
+      var ref = p.ref;
       ref[method].apply(ref, args);
     });
   };

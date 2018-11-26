@@ -8,7 +8,7 @@ var util = exports;
 var READ_EVENTS = ['value', 'child_added', 'child_removed', 'child_updated', 'child_changed'];
 
 util.undef = undef;
-util.Firebase = global.Firebase || require('firebase');
+util.firebase = global.firebase || require('firebase');
 
 util.isDefined = function(v) {
   return v !== undef;
@@ -357,12 +357,12 @@ util.isFirebaseRef = function(x) {
   // necessary because instanceof won't work on Firebase Query objects
   // so we can't simply do instanceof here
   var proto = Object.getPrototypeOf(x);
-  if( proto && proto.constructor === util.Firebase.prototype.constructor ) {
+  if( proto && proto.constructor === util.firebase.database.prototype.constructor ) {
     return true;
   }
 
-  //todo-hack: SDK 2.2.x no longer works with the above. This is a hack to make that work until fixed
-  if( typeof(x.ref) === 'function' && typeof(x.ref().transaction) === 'function' ) {
+  //todo-hack: SDK 3.0.x no longer works with the above. This is a hack to make that work until fixed
+  if( typeof(x.ref) === 'object' && typeof(x.ref.transaction) === 'function' ) {
     return true;
   }
 
@@ -388,7 +388,7 @@ util.registerFirebaseWrapper = function(WrappingClass) {
 
 // for test units
 util._mockFirebaseRef = function(mock) {
-  util.Firebase = mock;
+  util.firebase = mock;
 };
 
 util.escapeEmail = function(email) {

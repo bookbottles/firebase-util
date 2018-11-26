@@ -3,6 +3,39 @@ THIS IS A BETA FEATURE. NOT RECOMMENDED FOR USE IN PRODUCTION.
 
 See [LIVE EXAMPLES](http://firebase.github.io/firebase-util/#/toolbox/Paginate/).
 
+## Updated to Firebase SDK v3.0.x
+
+Firebase SDK has been updated to v3.x so several steps need to be taken in order to work with new API.
+Migration guide is avalaible in: https://firebase.google.com/support/guides/firebase-web
+
+Once the migration steps have been taken, we need to make some changes in our previous firebase v2 code in order to have firebase-util working again.
+As surely you have realized, most significant changes are:
+ - We no longer instantiate a database references via new Firebase. Instead, we will initialize the SDK via *firebase.initializeApp()* and then we get a database reference with: *firebase.database().ref()* (note the lower case firebase! It's meaningful!)
+ - Many no-argument getters have been changed to read-only properties
+ 
+**So what is different with firebase-util**?
+
+Collaterally, the way we get a firebase reference. The way we get some objects like .key, .parent, .ref, that are now read-only properties instead of functions. And the lower case **firebase** namespace, of course!
+
+So basically, now we get a reference like this:
+```
+var baseRef = firebase.database().ref();
+```
+Then we use firebase-util like this (note once again the **lower case** *firebase*):
+```
+var scrollRef = new firebase.util.Scroll(baseRef, 'number');
+scrollRef.on('child_added', function(snap) {
+   console.log('added child', snap.key);
+});
+scrollRef.scroll.next(20);
+```
+
+Finally we retrieve some of the properties like this (without the **()**):
+```
+var readOnlyRef = scrollRef.ref;
+var key = snapshot.key;
+```
+
 # Summary
 
 The Paginate library currently contains tools for pagination (next page, previous page, and skip
@@ -23,15 +56,15 @@ capabilities.
 
 ```js
 // create a Firebase ref that points to the scrollable data
-var baseRef = new Firebase('https://fbutil.firebaseio.com/paginate');
+var baseRef = firebase.database().ref();
 
 // create a read-only scroll ref, we pass in the baseRef and a field that
 // will be used in the orderByChild() criteria (this also accepts $key, $priority, and $value)
-var scrollRef = new Firebase.util.Scroll(baseRef, 'number');
+var scrollRef = new firebase.util.Scroll(baseRef, 'number');
 
 // establish an event listener as you would for any Firebase ref
 scrollRef.on('child_added', function(snap) {
-   console.log('added child', snap.key());
+   console.log('added child', snap.key);
 });
 
 // download the first 20 records
@@ -42,16 +75,16 @@ scrollRef.scroll.next(20);
 
 ```js
 // create a Firebase ref that points to the paged data
-var baseRef = new Firebase('https://fbutil.firebaseio.com/paginate');
+var baseRef = firebase.database().ref().child('paginate');
 
 // create a read-only paginate ref, we pass in the baseRef and the field that
 // will be used in the orderByChild() criteria (this also accepts $key, $priority, and $value)
 // an optional third argument can be used to specify the number of items per page
-var pageRef = new Firebase.util.Paginate(fb, 'number', {pageSize: 10});
+var pageRef = new firebase.util.Paginate(fb, 'number', {pageSize: 10});
 
 // listen for changes to the data as you would on any Firebase ref
 pageRef.on('child_added', function(snap) {
-   console.log('record added', snap.key());
+   console.log('record added', snap.key);
 });
 
 // discard any currently loaded records (calls child_removed)
@@ -69,7 +102,7 @@ pageRef.page.next();
 
 ## Scroll
 
-### Firebase.util.Scroll(ref, orderByField [, opts]);
+### firebase.util.Scroll(ref, orderByField [, opts]);
 
     @param {Firebase} ref
     @param {string} orderByField
@@ -84,8 +117,8 @@ The reference returned will have a special `scroll` namespace where all the API 
 example:
 
 ```
-var baseRef = new Firebase(...);
-var scrollRef = new Firebase.util.Scroll(baseRef, '$key');
+var baseRef = firebase.database().ref();
+var scrollRef = new firebase.util.Scroll(baseRef, '$key');
 // special scroll methods are namespaced in scrollRef.scroll
 scrollRef.scroll.next(25);
 ```
@@ -154,7 +187,7 @@ memory and references for the infinite scroll reference.
 
 ## Paginate
 
-## Firebase.util.Paginate( ref, orderByField [, opts] );
+## firebase.util.Paginate( ref, orderByField [, opts] );
 
 
     @param {Firebase} ref
@@ -169,8 +202,8 @@ The reference returned will have a special `page` namespace where all the API me
 example:
 
 ```
-var baseRef = new Firebase(...);
-var scrollRef = new Firebase.util.Paginate(baseRef, '$key');
+var baseRef = firebase.database().ref();
+var scrollRef = new firebase.util.Paginate(baseRef, '$key');
 // special paginate methods are namespaced in scrollRef.page
 scrollRef.page.next();
 ```
@@ -242,7 +275,7 @@ The callback is triggered with two arguments: an integer representing the curren
 tells whether there could be more pages (because we haven't found the end yet).
 
 ```
-var ref = new Firebase.util.Page(ref, 'name', {pageSize: 10});
+var ref = new firebase.util.Page(ref, 'name', {pageSize: 10});
 ref.page.onPageCount(function(currentPageCount, couldHaveMore) {
    console.log('There are ' + currentPageCount + ' pages' + (couldHaveMore? ' or more' : ''));
 });
@@ -289,17 +322,17 @@ they trigger `child_added` events. When they move out of the viewable range, the
 `child_removed` events:
 
 ```
-var ref = new Firebase.util.Paginate(
-    new Firebase('https://fbutil.firebaseio.com/paginate'),
+var ref = new firebase.util.Paginate(
+    firebase.database().ref().child('paginate'),
     'number',
     {pageSize: 3}
 );
 
 ref.on('child_added', function(snap) {
-   console.log('added', snap.key());
+   console.log('added', snap.key);
 }};
 ref.on('child_removed', function(snap) {
-   console.log('removed', snap.key());
+   console.log('removed', snap.key);
 }};
 
 ref.page.next();
@@ -329,6 +362,6 @@ ref.page.prev()
 Works in the same manner as regular once() callbacks, but only triggers for events within
 the current viewable scope (items in the current page or scroll window).
 
-#### ref()
+#### ref
 
 Returns this ReadOnlyRef

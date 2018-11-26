@@ -40,12 +40,12 @@ describe('NormalizedSnapshot', function() {
       });
       var snap = new NormalizedSnapshot(ref, hp.snaps(true));
       var childSnap = snap.child('foo/bar');
-      expect(childSnap.key()).toBe('bar');
+      expect(childSnap.key).toBe('bar');
     });
 
     it('should be null if child does not exist in data', function() {
       var snap = new NormalizedSnapshot(hp.stubNormRef(), hp.snaps({ foo: {bar: 'baz'} })).child('baz');
-      expect(snap.key()).toBe('baz');
+      expect(snap.key).toBe('baz');
       expect(snap.val()).toBe(null);
     });
   });
@@ -177,7 +177,7 @@ describe('NormalizedSnapshot', function() {
     it('should equal ref\'s key', function() {
       var ref = hp.stubNormRef(['p1']);
       var snap = new NormalizedSnapshot(ref, hp.snaps(null));
-      expect(snap.key()).toBe(snap.key());
+      expect(snap.key).toBe(snap.key);
     });
   });
 

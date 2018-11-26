@@ -70,12 +70,12 @@ util.inherits(RecordField, AbstractRecord, {
   forEachKey: function(snaps, iterator, context) {
     var firstSnap = snaps[0];
     return firstSnap.forEach(function(ss) {
-      iterator.call(context, ss.key(), ss.key());
+      iterator.call(context, ss.key, ss.key);
     });
   },
 
   saveData: function(data, opts) {
-    var ref = this.path.ref();
+    var ref = this.path.ref;
     if( opts.isUpdate ) {
       if( !util.isObject(data) ) {
         throw new Error('When using update(), the data must be an object.');
@@ -98,14 +98,14 @@ util.inherits(RecordField, AbstractRecord, {
   _start: function(event) {
     var self = this;
     this.handlers[event] = function(snap, prev) {
-      self.trigger(new SnapshotFactory(event, snap.key(), snap, prev));
+      self.trigger(new SnapshotFactory(event, snap.key, snap, prev));
     };
-    this.path.ref().on(event, this.handlers[event], this._cancel, this);
+    this.path.ref.on(event, this.handlers[event], this._cancel, this);
   },
 
   _stop:   function(event) {
     if( this.handlers.hasOwnProperty(event) ) {
-      this.path.ref().off(event, this.handlers[event], this);
+      this.path.ref.off(event, this.handlers[event], this);
     }
   }
 });

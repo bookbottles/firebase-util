@@ -1,7 +1,7 @@
 
 var _ = require('lodash');
 var MockFirebase = require('mockfirebase').MockFirebase;
-var Firebase = require('firebase');
+var firebase = require('firebase');
 
 addTwoDotOhStubs(MockFirebase);
 
@@ -41,7 +41,8 @@ exports.doAfterTest = (function() {
 })();
 
 exports.liveRef = function(data, callback) {
-  var ref = new Firebase('https://fbutil.firebaseio.com/test/').push();
+    
+  var ref = firebase.database().ref().child('/test/').push();
   ref.onDisconnect().remove();
   if( data ) {
     ref.set(data, callback||function() {});
@@ -464,7 +465,7 @@ exports.snaps = function() {
 };
 
 /**
- * Creates a stub for a Firebase snapshot (not a NormalizedCollection/Snapshot object)
+ * Creates a stub for a firebase snapshot (not a NormalizedCollection/Snapshot object)
  *
  * @param {object} fbRef
  * @param {*} [data]

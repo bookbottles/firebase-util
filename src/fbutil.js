@@ -1,5 +1,5 @@
 /**
- * This file establishes the Firebase.util namespace and
+ * This file establishes the firebase.util namespace and
  * defines the exports for all packages when using node.js
  */
 'use strict';
@@ -15,10 +15,10 @@ util.extend(exports,
 
 /*global window */
 if( typeof window !== 'undefined' ) {
-  if( !window.hasOwnProperty('Firebase') ) {
-    console.warn('Firebase not found on the global window instance. Cannot add Firebase.util namespace.');
+  if( !window.hasOwnProperty('firebase') ) {
+    console.warn('Firebase not found on the global window instance. Cannot add firebase.util namespace.');
   }
   else {
-    window.Firebase.util = util;
+    window.firebase.util = util;
   }
 }

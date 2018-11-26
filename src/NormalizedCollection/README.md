@@ -5,6 +5,38 @@ THIS IS A BETA FEATURE. NOT RECOMMENDED FOR USE IN PRODUCTION.
 
 See [LIVE EXAMPLES](http://firebase.github.io/firebase-util/#/toolbox/NormalizedCollection/).
 
+## Updated to Firebase SDK v3.0.x
+
+Firebase SDK has been updated to v3.x so several steps need to be taken in order to work with new API.
+Migration guide is avalaible in: https://firebase.google.com/support/guides/firebase-web
+
+Once the migration steps have been taken, we need to make some changes in our previous firebase v2 code in order to have firebase-util working again.
+As surely you have realized, most significant changes are:
+ - We no longer instantiate a database references via new Firebase. Instead, we will initialize the SDK via *firebase.initializeApp()* and then we get a database reference with: *firebase.database().ref()* (note the lower case firebase! It's meaningful!)
+ - Many no-argument getters have been changed to read-only properties
+ 
+**So what is different with firebase-util**?
+
+Collaterally, the way we get a firebase reference. The way we get some objects like .key, .parent, .ref, that are now read-only properties instead of functions. And the lower case **firebase** namespace, of course!
+
+So basically, now we get a reference like this:
+```
+var fb = firebase.database().ref();
+```
+Then we use firebase-util like this (note once again the **lower case** *firebase*):
+```
+var norm = new firebase.util.NormalizedCollection(
+   fb.child('login'),
+   fb.child('profile')
+);
+```
+
+Finally we retrieve some of the properties like this (without the **()**):
+```
+var ref = norm.ref;
+var key = ref.child('foo').key;
+```
+
 ## Summary
 
 A normalized collection is a method for joining paths and data together based on keys or field
@@ -44,10 +76,10 @@ almost anywhere a regular Firebase reference would be appropriate.
 
 ```
 // create a Firebase reference
-var fb = new Firebase('https://<instance>.firebaseio.com');
+var fb = firebase.database().ref();
 
 // map the paths we are going to join
-var norm = new Firebase.util.NormalizedCollection(
+var norm = new firebase.util.NormalizedCollection(
    fb.child('login'),
    fb.child('profile')
 );
@@ -61,7 +93,7 @@ norm = norm.filter(
 );
 
 // get a reference we can use like a normal Firebase instance
-ref = norm.ref();
+ref = norm.ref;
 
 // run it and see what we get
 ref.on('value', function(snap) {
@@ -81,10 +113,10 @@ ref as follows: `[firebaseRef, alias, optionalDependency]`
 Join paths using aliases:
 
 ```
-var norm = new Firebase.util.NormalizedCollection(
-   new Firebase('https://kato.firebaseio.com/widgets'),                  // alias is "widgets"
-   [ new Firebase('https://kato1.firebaseio.com/widgets'), 'widgets1' ], // alias is "widgets1"
-   [ new Firebase('https://kato2.firebaseio.com/widgets'), 'widgets2' ], // alias is "widgets2"
+var norm = new firebase.util.NormalizedCollection(
+   firebase.database().ref().child('widgets'),                  // alias is "widgets"
+   [ firebase.database().ref().child('widgets'), 'widgets1' ], // alias is "widgets1"
+   [ firebase.database().ref().child('widgets'), 'widgets2' ], // alias is "widgets2"
 );
 ```
 
@@ -113,8 +145,8 @@ index and uses these to join the paths together. It is also possible to specify 
 dependencies between paths and we'll talk about that below.
 
 ```
-var fb = new Firebase('https://kato.firebaseio.com');
-var norm = new Firebase.util.NormalizedCollection(
+var fb = firebase.database().ref();
+var norm = new firebase.util.NormalizedCollection(
     fb.child('master'),  // the master index
     fb.child('path1'),   // a merged path with the same keys as master
     fb.child('path2')    // another merged path with the same keys
@@ -180,10 +212,10 @@ This example sets `https://<instance>.firebaseio.com/path1/$pushid/foo` and
 `https://<instance>.firebaseio.com/path2/$pushid/bar` in a single push operation:
 
 ```
-var fb = new Firebase('https://<instance>.firebaseio.com');
-var ref = new Firebase.util.NormalizedCollection(fb.child('path1'), fb.child('path2'))
+var fb = firebase.database().ref();
+var ref = new firebase.util.NormalizedCollection(fb.child('path1'), fb.child('path2'))
     .select('path1.foo', 'path2.bar')
-    .ref();
+    .ref;
 
 ref.push({ foo: 'foo value', bar: 'bar value' });
 ```
@@ -214,13 +246,13 @@ considering the following chat data:
 We could merge these records together using a field dependency as follows:
 
 ```
-var fb = new Firebase('https://<instance>.fireabseio.com');
-var norm = new Firebase.util.NormalizedRecord(
+var fb = firebase.database().ref();
+var norm = new firebase.util.NormalizedRecord(
    fb.child('messages'),
    [fb.child('users'), 'users', 'messages.user']
 );
 
-var ref = norm.select('messages.text', 'messages.user', 'users.name').ref();
+var ref = norm.select('messages.text', 'messages.user', 'users.name').ref;
 ```
 
 Now the joined records would look like this:
@@ -251,7 +283,7 @@ be the fieldKey.
 ### NormalizedCollection
 
 A NormalizedCollection is used to create a map of paths and fields to the final data we want
-to fetch. Once a NormalizedCollection is complete, we call ref() to finalize it and to create
+to fetch. Once a NormalizedCollection is complete, we call .ref to finalize it and to create
 the actual ref we will use to synchronized data.
 
 #### NormalizedCollection(path, [path...])
@@ -283,7 +315,7 @@ data (fields not in the map will be left alone, even if they are not in the new 
 A client-side tool to filter the data that triggers events (e.g. `value`, `child_added`, etc).
 This does not affect write operations, only local records.
 
-#### ref()
+#### ref
 
     @returns {NormalizedRef} see below
 
@@ -292,7 +324,7 @@ fields, and filter provided.
 
 ### NormalizedRef
 
-A NormalizedRef is obtained from NormalizedCollection.prototype.ref(). It can be used like a
+A NormalizedRef is obtained from NormalizedCollection.prototype.ref. It can be used like a
 normal Firebase ref and implements the standard [Firebase API](https://www.firebase.com/docs/web/api/)
 with the caveats/exceptions listed below.
 
@@ -352,13 +384,13 @@ the field map. If a key is given that doesn't match a field alias, then that key
 as a child of the master index.
 
 ```
-var ref1 = new Firebase('https://kato1.firebaseio.com/foo');
-var ref2 = new Firebase('https://kato2.firebaseio.com/bar');
-var ref3 = new Firebase('https://kato3.firebaseio.com/baz');
+var ref1 = firebase.database().ref().child('foo');
+var ref2 = firebase.database().ref().child('bar');
+var ref3 = firebase.database().ref().child('baz');
 
-var ref = new Firebase.util.NormalizedCollection(ref1, ref2, ref3)
+var ref = new firebase.util.NormalizedCollection(ref1, ref2, ref3)
     .select('foo.name', 'bar.color', 'baz.size')
-    .ref();
+    .ref;
 
 ref.child('record1').child('name'); // https://kato1.firebaseio.com/foo/record1/name
 ```
@@ -372,24 +404,24 @@ as if you called parent on a root Firebase node). The normal child/parent chain 
 level.
 
 ```
-var ref1 = new Firebase('https://kato1.firebaseio.com/foo');
-var ref2 = new Firebase('https://kato2.firebaseio.com/bar');
-var ref3 = new Firebase('https://kato3.firebaseio.com/baz');
+var ref1 = firebase.database().ref().child('foo');
+var ref2 = firebase.database().ref().child('bar');
+var ref3 = firebase.database().ref().child('baz');
 
-var ref = new Firebase.util.NormalizedCollection(ref1, ref2, ref3)
+var ref = new firebase.util.NormalizedCollection(ref1, ref2, ref3)
     .select('foo.name', 'bar.color', 'baz.size')
-    .ref();
+    .ref;
 
-ref.parent(); // null
+ref.parent; // null
 
 // https://kato1.firebaseio.com/foo/record1/name
 var childRef = ref.child('record1').child('name');
 
 // merged record for foo/record1 + bar/record1 + baz/record1
-childRef.parent();
+childRef.parent;
 
-childRef.parent().parent() === ref; // true!
-childRef.parent().parent().parent() === null; // true!
+childRef.parent.parent === ref; // true!
+childRef.parent.parent.parent === null; // true!
 ```
 
 #### name()
@@ -400,18 +432,18 @@ The name for a merged ref with more than one path is the concatenated list of al
 a single path is the alias for that path.
 
 ```
-var ref1 = new Firebase('https://kato1.firebaseio.com/foo');
-var ref2 = new Firebase('https://kato2.firebaseio.com/bar');
+var ref1 = firebase.database().ref().child('foo');
+var ref2 = firebase.database().ref().child('bar');
 
-var ref = new Firebase.util.NormalizedCollection(ref1, [ref2, 'refTheTwo'])
+var ref = new firebase.util.NormalizedCollection(ref1, [ref2, 'refTheTwo'])
     .select('foo.name', 'bar.color')
-    .ref();
+    .ref;
 
-ref.key(); // "[foo][refTheTwo]" (a merged collection)
+ref.key; // "[foo][refTheTwo]" (a merged collection)
 
-ref.child('record1').key(); // "[record1][record1]" (a merged record)
+ref.child('record1').key; // "[record1][record1]" (a merged record)
 
-ref.child('record1/name').key(); // "name"
+ref.child('record1/name').key; // "name"
 ```
 
 #### toString()
@@ -422,12 +454,12 @@ The toString() for a merged ref is the concatenated list or URLs. If there is ex
 then toString() will just return that URL.
 
 ```
-var ref1 = new Firebase('https://kato1.firebaseio.com/foo');
-var ref2 = new Firebase('https://kato2.firebaseio.com/bar');
+var ref1 = firebase.database().ref().child('foo');
+var ref2 = firebase.database().ref().child('bar');
 
-var ref = new Firebase.util.NormalizedCollection(ref1, [ref2, 'refTheTwo'])
+var ref = new firebase.util.NormalizedCollection(ref1, [ref2, 'refTheTwo'])
     .select('foo.name', 'bar.color')
-    .ref();
+    .ref;
 
 // "[https://kato1.firebaseio.com/foo][https://kato2.firebaseio.com/bar]" (a merged collection)
 ref.toString();
@@ -436,7 +468,7 @@ ref.toString();
 ref.child('record1').toString();
 
 // https://kato1.firebaseio.com/foo/record1/name
-ref.child('record1/name').key();
+ref.child('record1/name').key;
 ```
 
 #### transaction()

@@ -79,8 +79,8 @@ util.inherits(RecordSet, AbstractRecord, {
     if( snaps.length && snaps[0].val() !== null ) {
       out = {};
       util.each(snaps, function(snap) {
-        if( snap.val() !== null && self.filters.test(snap.val(), snap.key(), snap.getPriority()) ) {
-          out[snap.key()] = isExport? snap.exportVal() : snap.val();
+        if( snap.val() !== null && self.filters.test(snap.val(), snap.key, snap.getPriority()) ) {
+          out[snap.key] = isExport? snap.exportVal() : snap.val();
         }
       });
     }
@@ -110,7 +110,7 @@ util.inherits(RecordSet, AbstractRecord, {
    */
   forEachKey: function(snaps, iterator, context) {
     snaps.forEach(function(snap) {
-      return iterator.call(context, snap.key(), snap.key());
+      return iterator.call(context, snap.key, snap.key);
     });
   },
 
@@ -129,7 +129,7 @@ util.inherits(RecordSet, AbstractRecord, {
     var q = util.queue();
     if( data === null ) {
       util.each(this.getPathManager().getPaths(), function(path) {
-        path.ref().remove(q.getHandler());
+        path.ref.remove(q.getHandler());
       });
     }
     else if( !util.isObject(data) ) {
@@ -145,7 +145,7 @@ util.inherits(RecordSet, AbstractRecord, {
         this.child(k).saveData(v, {isUpdate: opts.isUpdate, callback: q.getHandler()});
       }, this);
       if( opts.priority ) {
-        this.getPathManager().first().ref().setPriority(opts.priority, q.getHandler());
+        this.getPathManager().first().ref.setPriority(opts.priority, q.getHandler());
       }
     }
     q.handler(opts.callback||util.noop, opts.context);
@@ -163,7 +163,7 @@ util.inherits(RecordSet, AbstractRecord, {
    */
   _getChildKey: function(snap, snapsArray, recordId) {
     var key = recordId;
-    var path = this.getPathManager().getPathFor(snap.ref().toString());
+    var path = this.getPathManager().getPathFor(snap.ref.toString());
     // resolve any dependencies to determine the child key's value
     if( path.hasDependency() ) {
       var dep = path.getDependency();
@@ -174,7 +174,7 @@ util.inherits(RecordSet, AbstractRecord, {
         ', but that alias does not exist in the paths provided.');
       }
       var depSnap = util.find(snapsArray, function(snap) {
-        return snap.ref().toString() === depPath.url();
+        return snap.ref.toString() === depPath.url();
       });
       if( depSnap ) {
         depSnap = depSnap.child(recordId);

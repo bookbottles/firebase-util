@@ -71,7 +71,7 @@ function assertPaths(args) {
 
 function assertNotFinalized(self, m) {
   if( self.finalized ) {
-    throw new Error('Cannot call ' + m + '() after ref() has been invoked');
+    throw new Error('Cannot call ' + m + '() after ref has been accessed');
   }
 }
 
@@ -102,7 +102,7 @@ function buildDebugString(nc) {
     filter = util.printf('<%s filters applied>', nc.filters.criteria.length);
   }
 
-  return util.printf('NormalizedCollection(\n%s\n).select(%s)%s.ref()', paths.join('\n'), selects.join(', '), filter);
+  return util.printf('NormalizedCollection(\n%s\n).select(%s)%s.ref', paths.join('\n'), selects.join(', '), filter);
 }
 
 function assertValidField(f) {

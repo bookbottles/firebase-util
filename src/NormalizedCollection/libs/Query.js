@@ -10,6 +10,8 @@ function Query(ref, record) {
   // necessary because util.inherit() can only call classes with an empty constructor
   // so we can't depend on the params existing for that call
   if( record ) { record.setRef(self); } //todo don't like this here, is awkward coupling
+
+  self.ref =  self._ref;
 }
 
 Query.prototype = {
@@ -98,8 +100,6 @@ Query.prototype = {
     return this.$replicate('equalTo', util.toArray(arguments));
   },
 
-  'ref': function() { return this._ref; },
-
   /****************************
    * PACKAGE FUNCTIONS (not API)
    ***************************/
@@ -108,7 +108,7 @@ Query.prototype = {
   '$getRecord': function() { return this._rec; },
 
   /** @return {Firebase} */
-  '$getMaster': function() { return this._rec.getPathManager().first().ref(); },
+  '$getMaster': function() { return this._rec.getPathManager().first().ref; },
 
   /** @return {Array} */
   '$getPaths': function() { return this._rec.getPathManager().getPaths(); },

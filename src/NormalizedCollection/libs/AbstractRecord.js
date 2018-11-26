@@ -198,7 +198,7 @@ AbstractRecord.prototype = {
    * @returns {Record}
    */
   child: function(key) {
-    return this.getRef().ref().child(key).$getRecord();
+    return this.getRef().ref.child(key).$getRecord();
   },
 
   /**

@@ -4,7 +4,7 @@ var Offset = require('./Offset');
 
 function Cache(outRef, sortField, maxRecordsLoaded) {
   util.log.debug('Cache: caching %s using field=%s maxRecordsLoaded=%d', outRef.toString(), sortField, maxRecordsLoaded);
-  this.offset = new Offset({field: sortField, max: maxRecordsLoaded, ref: outRef.ref()});
+  this.offset = new Offset({field: sortField, max: maxRecordsLoaded, ref: outRef.ref});
   this.outRef = outRef;
   this.inRef = null;
   this.queryRef = null;
@@ -102,7 +102,7 @@ Cache.prototype._refChange = function() {
 };
 
 Cache.prototype._add = function(snap, prevChild) {
-  var key = snap.key();
+  var key = snap.key;
   if( !util.has(this.keys, key) ) {
     this.keys[key] = snap;
     this.outRef.$trigger('child_added', snap, prevChild);
@@ -113,7 +113,7 @@ Cache.prototype._add = function(snap, prevChild) {
 };
 
 Cache.prototype._remove = function(snap) {
-  var key = snap.key();
+  var key = snap.key;
   if( util.has(this.keys, key) ) {
     this.outRef.$trigger('child_removed', snap);
     delete this.keys[key];
@@ -121,7 +121,7 @@ Cache.prototype._remove = function(snap) {
 };
 
 Cache.prototype._move = function(snap, prevChild) {
-  var key = snap.key();
+  var key = snap.key;
   if( util.has(this.keys, key) ) {
     this.keys[key] = snap;
     this.outRef.$trigger('child_moved', snap, prevChild);
@@ -129,7 +129,7 @@ Cache.prototype._move = function(snap, prevChild) {
 };
 
 Cache.prototype._change = function(snap) {
-  this.keys[snap.key()] = snap;
+  this.keys[snap.key] = snap;
   this.outRef.$trigger('child_changed', snap);
 };
 

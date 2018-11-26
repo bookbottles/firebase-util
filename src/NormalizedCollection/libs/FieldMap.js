@@ -78,9 +78,9 @@ FieldMap.prototype = {
    */
   extractData: function(snapshot, isExport) {
     var out = {};
-    var pathName = this.pathMgr.getPathName(snapshot.ref().toString());
-    if( pathName === null && snapshot.ref().parent() !== null ) {
-      var parentPath = this.pathMgr.getPathFor(snapshot.ref().parent().toString());
+    var pathName = this.pathMgr.getPathName(snapshot.ref.toString());
+    if( pathName === null && snapshot.ref.parent !== null ) {
+      var parentPath = this.pathMgr.getPathFor(snapshot.ref.parent.toString());
       if( parentPath && parentPath.hasDependency() ) {
         pathName = parentPath.name();
       }
@@ -89,7 +89,7 @@ FieldMap.prototype = {
     util.each(this.fieldsFor(pathName), function(f) {
       switch(f.id) {
         case '$key':
-          putIn(out, f.alias, snapshot.key());
+          putIn(out, f.alias, snapshot.key);
           break;
         case '$value':
           putIn(out, f.alias, snapshot[fx]());
@@ -122,7 +122,7 @@ FieldMap.prototype = {
       var depSnap = this.snapFor(snaps, depField.alias);
       if( depSnap ) {
         if (dep.field === '$key') {
-          url = path.child(depSnap.key()).url();
+          url = path.child(depSnap.key).url();
         }
         else if (dep.field === '$value') {
           url = path.child(depSnap.val()).url();
@@ -137,7 +137,7 @@ FieldMap.prototype = {
     }
     if( url ) {
       return util.find(snaps, function (snap) {
-          return snap.ref().toString() === url;
+          return snap.ref.toString() === url;
         }) || null;
     }
     else {

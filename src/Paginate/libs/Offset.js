@@ -30,7 +30,7 @@ Offset.prototype.goTo = function(newOffset) {
 Offset.prototype.observe = function(callback, context) {
   this.listeners.push([callback, context]);
   var key = this.getKey();
-  var ref = offsetRef(this.ref, key);
+  var ref = offsetRef(this.ref, key, this.field);
   callback.call(context, key && key.val, key && key.key, ref);
 };
 
@@ -53,7 +53,7 @@ Offset.prototype._notify = function() {
   if( !util.isEqual(this.lastNotifyValue, key) ) {
     util.log('Offset._notify: key at offset %d is %s', this.curr, key && key.key);
     this.lastNotifyValue = key;
-    var ref = offsetRef(this.ref, key);
+    var ref = offsetRef(this.ref, key, this.field);
     util.each(this.listeners, function(parts) {
       parts[0].call(parts[1], key && key.val, key && key.key, ref);
     });
@@ -118,7 +118,7 @@ Offset.prototype._queryRef = function() {
 };
 
 Offset.prototype._moved = function(snap) {
-  if( snap.key() === this.getKey() ) {
+  if( snap.key === this.getKey() ) {
     this._recache();
   }
 };
@@ -149,6 +149,9 @@ Offset.prototype._doneSubscribing = function() {
 };
 
 Offset.prototype._monitorEmptyOffset = function() {
+  var self = this;
+  var ref = self.ref;
+  var key = null;
   function fn(snap) {
     var count = snap.numChildren();
     if( count > (key === null? 0 : 1) ) {
@@ -157,9 +160,6 @@ Offset.prototype._monitorEmptyOffset = function() {
       self._grow();
     }
   }
-  var self = this;
-  var ref = self.ref;
-  var key = null;
   if( this.keys.length ) {
     key = lastKey(this.keys);
     ref = ref.startAt(key.val, key.key);
@@ -190,7 +190,7 @@ function extractKey(snap, field) {
   var v;
   switch(field) {
     case '$key':
-      v = snap.key();
+      v = snap.key;
       break;
     case '$priority':
       v = snap.getPriority();
@@ -210,15 +210,18 @@ function extractKey(snap, field) {
         v = obj[field];
       }
   }
-  return {val: v, key: snap.key()};
+  return {val: v, key: snap.key};
 }
 
-function offsetRef(baseRef, startKey) {
+function offsetRef(baseRef, startKey, field) {
   if( startKey === false ) {
     return null;
   }
   else if( startKey === null ) {
     return baseRef;
+  }
+  else if( field === '$key' ) {
+    return baseRef.startAt(startKey.key);
   }
   else {
     return baseRef.startAt(startKey.val, startKey.key);
